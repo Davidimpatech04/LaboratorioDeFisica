@@ -9,11 +9,14 @@ def _f_regres_exp(x, a, b, c):
     return a * np.exp(-b * x) + c
 
 
-def slicing_data(path, interval, ascending=False) -> pd.DataFrame:
+def slicing_data(path, interval, ascending=False, Rl=False) -> pd.DataFrame:
     data = pd.read_csv(path)
-
-    data["Time"] += 0.0025  # Mudando o referencial "0" do tempo
-    data["Time"] *= 1000  # segundos -> milissegundos
+    if Rl:
+        data["Time"] *= 1000  # segundos -> milissegundos
+        data["Time"] += 1  # 0.0025  # Mudando o referencial "0" do tempo
+    else:
+        data["Time"] += 0.0025
+        data["Time"] *= 1000
 
     ini = interval[0]
     fin = interval[1]
