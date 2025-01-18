@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 import altair as alt
-from altair_saver import save
 
 
 def _f_regres_exp(x, a, b, c):
