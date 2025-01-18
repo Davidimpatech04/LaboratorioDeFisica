@@ -9,7 +9,18 @@ def _f_regres_exp(x, a, b, c):
     return a * np.exp(-b * x) + c
 
 
-def slicing_data(path, interval, ascending=False, Rl=False) -> pd.DataFrame:
+def _f_rl_regres(x, a, b, c):
+    return (
+        a
+        * np.exp(-b * x)
+        * (
+            np.cos(np.sqrt(c**2 - b**2) * x + b / np.sqrt(c**2 - b**2))
+            * np.sin(np.sqrt(c**2 - b**2) * x)
+        )
+    )
+
+
+def slicing_data(path, interval, ascending=False, Rl=False, Rlc=False) -> pd.DataFrame:
     data = pd.read_csv(path)
     if Rl:
         data["Time"] *= 1000  # segundos -> milissegundos
@@ -18,25 +29,30 @@ def slicing_data(path, interval, ascending=False, Rl=False) -> pd.DataFrame:
         data["Time"] += 0.0025
         data["Time"] *= 1000
 
-    ini = interval[0]
-    fin = interval[1]
+    if not Rlc:
+        ini = interval[0]
+        fin = interval[1]
 
-    q = data["Time"].sub(ini).abs().idxmin()
-    p = data["Time"].sub(fin).abs().idxmin()
+        q = data["Time"].sub(ini).abs().idxmin()
+        p = data["Time"].sub(fin).abs().idxmin()
 
-    semi_data = data[q:p]
+        semi_data = data[q:p]
 
-    idx_min = semi_data["U_b"].idxmin()
-    idx_max = semi_data["U_b"].idxmax()
-    if ascending:
-        filt_data = semi_data.loc[idx_min:idx_max]
+        idx_min = semi_data["U_b"].idxmin()
+        idx_max = semi_data["U_b"].idxmax()
+        if ascending:
+            filt_data = semi_data.loc[idx_min:idx_max]
+        else:
+            filt_data = semi_data.loc[idx_max:idx_min]
     else:
-        filt_data = semi_data.loc[idx_max:idx_min]
+        filt_data = data.loc[(data["Time"] >= 3) & (data["Time"] <= 3.5)]
 
     return filt_data
 
 
-def regres_exp(data: pd.DataFrame, func=_f_regres_exp) -> pd.DataFrame:
+def regres_exp(data: pd.DataFrame, func=_f_regres_exp, Rlc=False) -> pd.DataFrame:
+    if Rlc:
+        func = _f_rl_regres
 
     x_data = data["Time"]
     y_data = data["U_b"]
