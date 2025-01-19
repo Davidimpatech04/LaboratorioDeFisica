@@ -56,6 +56,7 @@ def regres_exp(
 
     x_data = data["Time"]
     y_data = data["U_b"]
+    interval[0] = max(data["Time"].iloc[0], interval[0])
 
     par_optimize, _ = curve_fit(
         func, x_data, y_data, p0=[arg[0], arg[1], arg[2]], maxfev=100000
