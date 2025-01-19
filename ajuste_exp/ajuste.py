@@ -20,7 +20,7 @@ def slicing_data(path, interval, ascending=False, Rl=False, Rlc=False) -> pd.Dat
     data = pd.read_csv(path)
     if Rl:
         data["Time"] *= 1000  # segundos -> milissegundos
-        data["Time"] += 1  # 0.0025  # Mudando o referencial "0" do tempo
+        data["Time"] += 1  # Mudando o referencial "0" do tempo
     else:
         data["Time"] += 0.0025
         data["Time"] *= 1000
@@ -58,7 +58,7 @@ def regres_exp(
     y_data = data["U_b"]
     interval[0] = max(data["Time"].iloc[0], interval[0])
 
-    par_optimize, _ = curve_fit(
+    par_optimize, cov = curve_fit(
         func, x_data, y_data, p0=[arg[0], arg[1], arg[2]], maxfev=100000
     )
 
@@ -68,7 +68,7 @@ def regres_exp(
     dado_opt["Time"] = np.linspace(interval[0], data["Time"].iloc[-1], 1000)
     dado_opt["U_b"] = func(dado_opt["Time"], *par_optimize)
 
-    return dado_opt, b
+    return dado_opt, b, cov
 
 
 def data_x_regression(
