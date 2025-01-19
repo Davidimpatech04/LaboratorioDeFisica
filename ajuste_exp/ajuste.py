@@ -49,7 +49,7 @@ def slicing_data(path, interval, ascending=False, Rl=False, Rlc=False) -> pd.Dat
 
 
 def regres_exp(
-    data: pd.DataFrame, func=_f_regres_exp, Rlc=False, arg=[1, 1, 1]
+    data: pd.DataFrame, interval, func=_f_regres_exp, Rlc=False, arg=[1, 1, 1]
 ) -> pd.DataFrame:
     if Rlc:
         func = _f_rlc_regres
@@ -64,8 +64,8 @@ def regres_exp(
     _, b, _ = par_optimize
 
     dado_opt = pd.DataFrame()
-    dado_opt["Time"] = x_data
-    dado_opt["U_b"] = func(x_data, *par_optimize)
+    dado_opt["Time"] = np.linspace(interval[0], data["Time"].iloc[-1], 1000)
+    dado_opt["U_b"] = func(dado_opt["Time"], *par_optimize)
 
     return dado_opt, b
 
