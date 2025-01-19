@@ -9,14 +9,10 @@ def _f_regres_exp(x, a, b, c):
     return a * np.exp(-b * x) + c
 
 
-def _f_rl_regres(x, a, b, c):
+def _f_rlc_regres(x, V0, alpha, omega):
+    beta = np.sqrt((omega**2 + alpha**2))
     return (
-        a
-        * np.exp(-b * x)
-        * (
-            np.cos(np.sqrt(c**2 - b**2) * x + b / np.sqrt(c**2 - b**2))
-            * np.sin(np.sqrt(c**2 - b**2) * x)
-        )
+        V0 * np.exp(-alpha * x) * (np.cos(beta * x) + (alpha / beta) * np.sin(beta * x))
     )
 
 
@@ -45,19 +41,25 @@ def slicing_data(path, interval, ascending=False, Rl=False, Rlc=False) -> pd.Dat
         else:
             filt_data = semi_data.loc[idx_max:idx_min]
     else:
-        filt_data = data.loc[(data["Time"] >= 3) & (data["Time"] <= 3.5)]
+        filt_data = data.loc[
+            (data["Time"] >= interval[0]) & (data["Time"] <= interval[1])
+        ]
 
     return filt_data
 
 
-def regres_exp(data: pd.DataFrame, func=_f_regres_exp, Rlc=False) -> pd.DataFrame:
+def regres_exp(
+    data: pd.DataFrame, func=_f_regres_exp, Rlc=False, arg=[1, 1, 1]
+) -> pd.DataFrame:
     if Rlc:
-        func = _f_rl_regres
+        func = _f_rlc_regres
 
     x_data = data["Time"]
     y_data = data["U_b"]
 
-    par_optimize, _ = curve_fit(func, x_data, y_data, p0=[1, 1, 1], maxfev=10000)
+    par_optimize, _ = curve_fit(
+        func, x_data, y_data, p0=[arg[0], arg[1], arg[2]], maxfev=100000
+    )
 
     _, b, _ = par_optimize
 
