@@ -1,2 +1,2 @@
-tal subindo com ajuste: 1.0208770686505615e-05
-tal_descendo com ajuste: 1.0241539802175323e-05
+tal subindo com ajuste: 1.014648348776949e-05
+tal_descendo com ajuste: 9.996598674351638e-06
