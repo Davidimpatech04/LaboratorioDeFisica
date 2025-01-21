@@ -105,10 +105,60 @@ def save_datas(
     argww=[3, 3.14, -1, 10],
     argwww=[3, 3.14, -100, -10],
     argvr=[3, 3.14, -100, -10],
+    RL=False,
+    RLC=False,
 ):
 
     a1, a2, parametros_Vc, cov_vc = process(path_data, argww, cr="blue")
     avc, bvc, cvc, dvc = parametros_Vc
+    if not RL and not RLC:
+        legend_a1 = (
+            alt.Chart(
+                pd.DataFrame(
+                    {
+                        "Category": ["VC", "Vg", "VR"],
+                        "Color": ["blue", "yellow", "green"],
+                    }
+                )
+            )
+            .mark_point()
+            .encode(
+                y=alt.Y("Category", axis=alt.Axis(title="Legend")),
+                color=alt.Color("Color:N", scale=None),
+            )
+        )
+    elif RL:
+        legend_a1 = (
+            alt.Chart(
+                pd.DataFrame(
+                    {
+                        "Category": ["VL", "Vg", "VR"],
+                        "Color": ["blue", "yellow", "green"],
+                    }
+                )
+            )
+            .mark_point()
+            .encode(
+                y=alt.Y("Category", axis=alt.Axis(title="Legend")),
+                color=alt.Color("Color:N", scale=None),
+            )
+        )
+    else:
+        legend_a1 = (
+            alt.Chart(
+                pd.DataFrame(
+                    {
+                        "Category": ["VLC", "Vg", "VR"],
+                        "Color": ["blue", "yellow", "green"],
+                    }
+                )
+            )
+            .mark_point()
+            .encode(
+                y=alt.Y("Category", axis=alt.Axis(title="Legend")),
+                color=alt.Color("Color:N", scale=None),
+            )
+        )
     a1.display()
     (a1 + a2).display()
 
@@ -129,7 +179,7 @@ def save_datas(
     (a5 + a6).display()
 
     (a1 + a3 + a5).display()
-    (a2 + a4 + a6).display()
+    ((a2 + a4 + a6) | legend_a1).display()
 
     with open(path_save, "w") as f:
         f.write(f"Vg:\n")
