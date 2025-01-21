@@ -153,7 +153,7 @@ def save_datas(
                     }
                 )
             )
-            .mark_point()
+            .mark_circle()
             .encode(
                 y=alt.Y("Category", axis=alt.Axis(title="Legend")),
                 color=alt.Color("Color:N", scale=None),
