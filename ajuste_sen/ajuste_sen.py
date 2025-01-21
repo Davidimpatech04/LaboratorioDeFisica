@@ -5,24 +5,6 @@ from scipy.optimize import curve_fit
 import altair as alt
 
 
-def func(list_freq):
-    data = pd.DataFrame()
-    data["freq"] = list_freq
-    lista_bode = []
-    for freq in list_freq:
-        lista_bode.append(20 * np.log10(2 * np.pi * freq))
-    data["bode"] = lista_bode
-    return data
-
-
-def graph(data: pd.DataFrame) -> alt.Chart:
-    return (
-        alt.Chart(data)
-        .mark_point(color="blueviolet")
-        .encode(alt.X("Time(s)", title="Time (s)"), y="CH2V")
-    )
-
-
 def f_Sen(x, a, b, c, d):
     return a * np.sin(b * x + c) + d
 
@@ -75,3 +57,90 @@ def data_x_regression(
     )
 
     return graph_data, graph_data_regress
+
+
+def data_vr(path: pd.DataFrame, paramvr) -> pd.DataFrame:
+    def func_sen(x, a, b, c, d):
+        return a * np.sin(b * x + c) + d
+
+    df = pd.read_csv(path)
+    Data_vr = pd.DataFrame()
+    df["Time(s)"] *= 1000
+    Data_vr["U"] = func_sen(
+        df["Time(s)"], paramvr[1], paramvr[3], paramvr[5], paramvr[7]
+    ) - func_sen(df["Time(s)"], paramvr[0], paramvr[2], paramvr[4], paramvr[6])
+    Data_vr["Time(s)"] = df["Time(s)"]
+    Data_vr = Data_vr.dropna()
+    return Data_vr
+
+
+def process(path, argw=[1.5, 3.14, 0, 2], channel_ys="CH2V", cr="red"):
+    if channel_ys == "CH1V":
+        color_point = "green"
+    elif channel_ys == "U":
+        color_point = "brown"
+    else:
+        color_point = "blueviolet"
+
+    if type(path) != pd.DataFrame:
+        df = pd.read_csv(path)
+
+        df["Time(s)"] *= 1000
+
+    else:
+        df = path
+
+    r_data, param, cov = regres(df, arg=argw, channel_y=channel_ys)
+
+    graph_data, graph_regres = data_x_regression(
+        df, r_data, channel_y=channel_ys, color_p=color_point, color_regress=cr
+    )
+
+    return graph_data, graph_regres, param, cov
+
+
+def save_datas(
+    path_data,
+    path_save,
+    argww=[3, 3.14, -1, 10],
+    argwww=[3, 3.14, -100, -10],
+    argvr=[3, 3.14, -100, -10],
+):
+
+    a1, a2, parametros_Vc, cov_vc = process(path_data, argww, cr="blue")
+    avc, bvc, cvc, dvc = parametros_Vc
+    a1.display()
+    (a1 + a2).display()
+
+    a3, a4, parametros_Vg, cov_vg = process(
+        path_data, argwww, channel_ys="CH1V", cr="orange"
+    )
+    avg, bvg, cvg, dvg = parametros_Vg
+    a3.display()
+    (a3 + a4).display()
+    (a2 + a4).display()
+
+    vr = data_vr(path_data, [avc, avg, bvc, bvg, cvc, cvg, dvc, dvg])
+
+    a5, a6, parametros_vr, cov_vr = process(vr, argvr, channel_ys="U", cr="green")
+    avr, bvr, cvr, dvr = parametros_vr
+
+    a5.display()
+    (a5 + a6).display()
+
+    (a1 + a3 + a5).display()
+    (a2 + a4 + a6).display()
+
+    with open(path_save, "w") as f:
+        f.write(f"Vg:\n")
+        f.write(f"funcao Vg = {avg}*sen({bvg}x + {cvg}) + {dvg}\n")
+        f.write(f"Matriz de covariancia VG:\n")
+        f.write(f"{cov_vg}\n")
+        f.write(f"Vc:\n")
+        f.write(f"funcao Vc = {avc}*sen({bvc}x + {cvc}) + {dvc}\n")
+        f.write(f"Matriz de covariancia VC:\n")
+        f.write(f"{cov_vc}\n")
+        f.write(f"Vr:\n")
+        f.write(f"funcao Vr = {avr}*sen({bvr}x + {cvr}) + {dvr}\n")
+        f.write(f"Matriz de covariancia VR:\n")
+        f.write(f"{cov_vr}")
