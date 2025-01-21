@@ -45,7 +45,7 @@ def regres(data, func=f_Sen, arg=[1.5, 3.14, 0, 2], channel_y="CH2V"):
 def data_x_regression(
     data: pd.DataFrame,
     data_regress: pd.DataFrame,
-    color_regress="red",
+    color_regress="aqua",
     color_p="blueviolet",
     channel_y="CH2V",
 ) -> alt.Chart:
