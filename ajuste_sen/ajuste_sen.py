@@ -102,6 +102,8 @@ def process(path, argw=[1.5, 3.14, 0, 2], channel_ys="CH2V", cr="red"):
 def save_datas(
     path_data,
     path_save,
+    pathimg1,
+    pathimg2,
     argww=[3, 3.14, -1, 10],
     argwww=[3, 3.14, -100, -10],
     argvr=[3, 3.14, -100, -10],
@@ -159,27 +161,29 @@ def save_datas(
                 color=alt.Color("Color:N", scale=None),
             )
         )
-    a1.display()
-    (a1 + a2).display()
+    # a1.display()
+    # (a1 + a2).display()
 
     a3, a4, parametros_Vg, cov_vg = process(
         path_data, argwww, channel_ys="CH1V", cr="orange"
     )
     avg, bvg, cvg, dvg = parametros_Vg
-    a3.display()
-    (a3 + a4).display()
-    (a2 + a4).display()
+    # a3.display()
+    # (a3 + a4).display()
+    # (a2 + a4).display()
 
     vr = data_vr(path_data, [avc, avg, bvc, bvg, cvc, cvg, dvc, dvg])
 
     a5, a6, parametros_vr, cov_vr = process(vr, argvr, channel_ys="U", cr="green")
     avr, bvr, cvr, dvr = parametros_vr
 
-    a5.display()
-    (a5 + a6).display()
+    # a5.display()
+    # (a5 + a6).display()
 
     (a1 + a3 + a5).display()
+    ((a1 + a3 + a5) | legend_a1).save(pathimg1)
     ((a2 + a4 + a6) | legend_a1).display()
+    ((a2 + a4 + a6) | legend_a1).save(pathimg2)
 
     with open(path_save, "w") as f:
         f.write(f"Vg:\n")
