@@ -2,9 +2,9 @@ import serial
 import time
 
 with open("lll.csv","w") as f:
-    f.write("temperatura atual, tempo")
+    f.write("erro, temperatura atual, integral")
     f.write("\n")
-    porta = "COM5"
+    porta = "COM17"
     baudrate = 115200
 
     arduino = serial.Serial(porta, baudrate, timeout=1)
